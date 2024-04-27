@@ -1,0 +1,116 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+// Questions class to represent quiz questions
+class Questions {
+    private String question;
+    private List<String> options;
+    private int correctOption;
+
+    public Questions(String question, List<String> options, int correctOption) {
+        this.question = question;
+        this.options = options;
+        this.correctOption = correctOption;
+    }
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public List<String> getOptions() {
+        return options;
+    }
+
+    public boolean isCorrect(int selectedOptionIndex) {
+        return selectedOptionIndex == correctOption;
+    }
+}
+
+// Quiz class to manage a collection of questions
+class Quiz {
+    private List<Questions> questions;
+
+    public Quiz() {
+        this.questions = new ArrayList<>();
+    }
+
+    public void addQuestion(Questions question) {
+        questions.add(question);
+    }
+
+    public List<Questions> getQuestions() {
+        return questions;
+    }
+}
+
+public class onlinequiz{
+    public static void main(String[] args) {
+        // Create quiz questions
+        Questions question1 = new Questions("What is the purpose of the final keyword in Java?",
+                List.of("To declare a variable constant.",
+                "To prevent inheritance of a class.",
+                "To prevent overriding of a method.",
+                "All of the above."), 3);
+        Questions question2 = new Questions("What is the significance of the static keyword in Java?",
+                List.of("It is used to define a constant.",
+                "It indicates that a method or variable belongs to the class rather than instances of the class.",
+                "It allows a method to access instance variables.",
+                "It indicates that a method cannot be overridden."), 1);
+        Questions question3 = new Questions("What is the output of 4 + 5?",
+                List.of("8", "9", "10", "11"), 1);
+        Questions question4 = new Questions("What is the full form of JVM?",
+                List.of("Java Visual Machine", "Java Virtual Memory", "Java Virtual Machine", "None of the above"), 2);
+        Questions question5 = new Questions("What is the result of 2 << 1?",
+                List.of("4", "1", "2", "8"), 2);
+
+        Quiz quiz = new Quiz();
+        quiz.addQuestion(question1);
+        quiz.addQuestion(question2);
+        quiz.addQuestion(question3);
+        quiz.addQuestion(question4);
+        quiz.addQuestion(question5);
+
+        startQuiz(quiz);
+    }
+
+    public static void startQuiz(Quiz quiz) {
+        Scanner scanner = new Scanner(System.in);
+        int score = 0;
+        System.out.println("Welcome to the Online Quiz!");
+        for (Questions question : quiz.getQuestions()) {
+            System.out.println("\n" + question.getQuestion());
+            List<String> options = question.getOptions();
+            for (int i = 0; i < options.size(); i++) {
+                System.out.println((i + 1) + ". " + options.get(i));
+            }
+
+            System.out.print("Enter your answer (1-" + options.size() + "): ");
+            int userAnswerIndex = scanner.nextInt() - 1;
+
+            if (userAnswerIndex < 0 || userAnswerIndex >= options.size()) {
+                System.out.println("Invalid input. Skipping this question.");
+                continue;
+            }
+            if (question.isCorrect(userAnswerIndex)) {
+                System.out.println("Correct!");
+                score++;
+            } else {
+                System.out.println("Incorrect!");
+            }
+        }
+        System.out.println("\nQuiz completed! Your score: " + score + "/" + quiz.getQuestions().size());
+        // Checking if the user passed or failed
+        if (score >= 3) {
+            System.out.println("Congratulations! You passed the test.");
+        } else {
+            System.out.println("Oops! You failed the test. Try again? (Y/N)");
+            char choice = scanner.next().charAt(0);
+            if (choice == 'Y' || choice == 'y') {
+                startQuiz(quiz);
+            } else {
+                System.out.println("Thank you for taking the quiz!");
+            }
+        }
+    }
+}
