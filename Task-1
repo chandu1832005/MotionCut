@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
-// Questions class to represent quiz questions
 class Questions {
     private String question;
     private List<String> options;
@@ -26,8 +24,6 @@ class Questions {
         return selectedOptionIndex == correctOption;
     }
 }
-
-// Quiz class to manage a collection of questions
 class Quiz {
     private List<Questions> questions;
 
@@ -46,7 +42,7 @@ class Quiz {
 
 public class onlinequiz{
     public static void main(String[] args) {
-        // Create quiz questions
+        
         Questions question1 = new Questions("What is the purpose of the final keyword in Java?",
                 List.of("To declare a variable constant.",
                 "To prevent inheritance of a class.",
