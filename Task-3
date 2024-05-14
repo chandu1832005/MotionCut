@@ -1,0 +1,238 @@
+import java.io.*;
+import java.util.*;
+
+class Transaction implements Serializable {
+    private String type;
+    private double amount;
+    private Date date;
+
+    public Transaction(String type, double amount, Date date) {
+        this.type = type;
+        this.amount = amount;
+        this.date = date;
+    }
+
+    // Getters
+    public String getType() {
+        return type;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+}
+
+class Account implements Serializable {
+    private String name;
+    private String accNumber;
+    private String accType;
+    private double balance;
+    private List<Transaction> transactions;
+
+    public Account(String name, String accNumber, String accType, double balance) {
+        this.name = name;
+        this.accNumber = accNumber;
+        this.accType = accType;
+        this.balance = balance;
+        this.transactions = new ArrayList<>();
+    }
+    public double getBalance() {
+        return balance;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
+    public String getAccNumber() {
+        return accNumber;
+    }
+}
+
+public class BankApplication {
+    private static final String FILENAME = "accounts.dat";
+
+    private static List<Account> accounts = new ArrayList<>();
+
+    public static void main(String[] args) {
+        loadAccounts(); // Load existing accounts from file
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("1. Create Account");
+            System.out.println("2. Deposit");
+            System.out.println("3. Withdraw");
+            System.out.println("4. Track Expenses");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1:
+                    createAccount(scanner);
+                    break;
+                case 2:
+                    deposit(scanner);
+                    break;
+                case 3:
+                    withdraw(scanner);
+                    break;
+                case 4:
+                    trackExpenses(scanner);
+                    break;
+                case 5:
+                    saveAccounts(); 
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private static void createAccount(Scanner scanner) {
+        System.out.print("Enter account name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter account number: ");
+        String accNumber = scanner.nextLine();
+        System.out.print("Enter account type: ");
+        String accType = scanner.nextLine();
+        System.out.print("Enter initial balance: ");
+        double balance = scanner.nextDouble();
+
+        Account account = new Account(name, accNumber, accType, balance);
+        accounts.add(account);
+        System.out.println("Account created successfully.");
+    }
+
+    private static void deposit(Scanner scanner) {
+        System.out.print("Enter account number: ");
+        String accNumber = scanner.nextLine();
+        System.out.print("Enter amount to deposit: ");
+        double amount = scanner.nextDouble();
+
+        Account account = findAccount(accNumber);
+        if (account != null) {
+            account.setBalance(account.getBalance() + amount);
+            account.getTransactions().add(new Transaction("Deposit", amount, new Date()));
+            System.out.println("Deposit successful.");
+        } else {
+            System.out.println("Account not found.");
+        }
+    }
+
+    private static void withdraw(Scanner scanner) {
+        System.out.print("Enter account number: ");
+        String accNumber = scanner.nextLine();
+        System.out.print("Enter amount to withdraw: ");
+        double amount = scanner.nextDouble();
+
+        Account account = findAccount(accNumber);
+        if (account != null) {
+            if (account.getBalance() >= amount) {
+                account.setBalance(account.getBalance() - amount);
+                account.getTransactions().add(new Transaction("Withdrawal", amount, new Date()));
+                System.out.println("Withdrawal successful.");
+            } else {
+                System.out.println("Insufficient funds.");
+            }
+        } else {
+            System.out.println("Account not found.");
+        }
+    }
+
+    private static void trackExpenses(Scanner scanner) {
+        System.out.print("Enter account number: ");
+        String accNumber = scanner.nextLine();
+
+        Account account = findAccount(accNumber);
+        if (account != null) {
+            System.out.println("1. Show Withdrawals");
+            System.out.println("2. Show Deposits");
+            System.out.println("3. Show All Transactions");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1:
+                    showWithdrawals(account);
+                    break;
+                case 2:
+                    showDeposits(account);
+                    break;
+                case 3:
+                    showAllTransactions(account);
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        } else {
+            System.out.println("Account not found.");
+        }
+    }
+
+    private static void showWithdrawals(Account account) {
+        System.out.println("Withdrawals for Account: " + account.getAccNumber());
+        System.out.println("=================================");
+        for (Transaction transaction : account.getTransactions()) {
+            if (transaction.getType().equals("Withdrawal")) {
+                System.out.println("Type: " + transaction.getType() + ", Amount: " + transaction.getAmount() +
+                                   ", Date: " + transaction.getDate());
+            }
+        }
+    }
+
+    private static void showDeposits(Account account) {
+        System.out.println("Deposits for Account: " + account.getAccNumber());
+        System.out.println("=================================");
+        for (Transaction transaction : account.getTransactions()) {
+            if (transaction.getType().equals("Deposit")) {
+                System.out.println("Type: " + transaction.getType() + ", Amount: " + transaction.getAmount() +
+                                   ", Date: " + transaction.getDate());
+            }
+        }
+    }
+
+    private static void showAllTransactions(Account account) {
+        System.out.println("All Transactions for Account: " + account.getAccNumber());
+        System.out.println("=================================");
+        for (Transaction transaction : account.getTransactions()) {
+            System.out.println("Type: " + transaction.getType() + ", Amount: " + transaction.getAmount() +
+                               ", Date: " + transaction.getDate());
+        }
+    }
+
+    private static Account findAccount(String accNumber) {
+        for (Account account : accounts) {
+            if (account.getAccNumber().equals(accNumber)) {
+                return account;
+            }
+        }
+        return null;
+    }
+
+    private static void loadAccounts() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILENAME))) {
+            accounts = (List<Account>) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Error loading accounts: " + e.getMessage());
+        }
+    }
+
+    private static void saveAccounts() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILENAME))) {
+            oos.writeObject(accounts);
+        } catch (IOException e) {
+            System.out.println("Error saving accounts: " + e.getMessage());
+        }
+    }
+}
